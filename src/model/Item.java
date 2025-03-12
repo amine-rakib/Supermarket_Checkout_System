@@ -11,7 +11,7 @@ public class Item {
     public Item(String id, String label, double u_price, int quantity, ItemCategory category, double weight) {
         this.id = id;
         this.label = label;
-        this.u_price = price;
+        this.u_price = u_price;
         this.quantity = quantity;
         this.category = category;
         this.weight = weight;
