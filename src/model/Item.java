@@ -3,46 +3,36 @@ package model;
 public class Item {
     private String id;
     private String label;
-    private double price;
+    private double u_price;
     private int quantity;
-    private String category; 
-    private double storeDiscount;
+    private ItemCategory category; 
+    private double weight;
 
-    public Item(String id, String label, double price, int quantity, String category, double storeDiscount) {
+    public Item(String id, String label, double u_price, int quantity, ItemCategory category, double weight) {
         this.id = id;
         this.label = label;
-        this.price = price;
+        this.u_price = price;
         this.quantity = quantity;
         this.category = category;
-        this.storeDiscount = storeDiscount;
+        this.weight = weight;
     }
 
 
-    public String getId() {
-        return id;
-    }
+    public String getId() { return id; }
 
-    public String getLabel() {
-        return label;
-    }
+    public String getLabel() { return label; }
     
-    public double getBasePrice() {
-        return price;
-    }
+    public double getUPrice() { return u_price;}
 
-    public int getQuantity() {
-        return quantity;
-    }
+    public int getQuantity() { return quantity;}
 
-    public String getCategory() {
-        return category;
-    }
+    public ItemCategory getCategory() { return category; }
 
-    public double getStoreDiscount() {
-        return storeDiscount;
-    }
+    public double getWeight() { return weight; }
 
     public double getPrice() {
-        return price * (1 - storeDiscount);
+        double discount = category.getDiscount();
+        return u_price * (1 - discount) * quantity;
     }
+
 }

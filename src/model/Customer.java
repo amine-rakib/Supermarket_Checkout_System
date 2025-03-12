@@ -15,8 +15,11 @@ public class Customer {
         this.lastName = lastName;
         this.id = generateId();
         this.plan = plan;
+        
+        // address of the customer
         this.x_axis = x_axis;
         this.y_axis = y_axis;
+
         this.payment_method = payment_method;
     }
 
