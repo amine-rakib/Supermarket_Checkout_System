@@ -1,6 +1,5 @@
 package model;
 
-import controller.POS;
 import java.util.List;
 import java.util.ArrayList;
 

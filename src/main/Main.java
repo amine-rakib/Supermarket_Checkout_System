@@ -1,6 +1,5 @@
 package main;
 
-import controller.POS;
 import model.*;
 
 public class Main {
