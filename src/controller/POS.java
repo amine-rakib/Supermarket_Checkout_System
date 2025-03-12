@@ -1,53 +1,66 @@
 package controller;
 
 import model.PaymentTransaction;
+import model.BankAccount;
+import model.BankCard;
 import model.Customer;
+import model.TAS;
 import java.util.Scanner;
 
 public class POS {
     private Scanner scanner;
+    private TAS tas;
 
-    public POS() {
+    public POS(TAS tas) {
         this.scanner = new Scanner(System.in);
+        this.tas = tas;
     }
     public boolean processPayment(PaymentTransaction transaction, Customer customer) {
+        BankCard card = customer.getBankCard();
+        BankAccount account = card.getLinkedAccount();
 
         // Vériication que la carte est bien une carte bancaire : 
-        if (!customer.getPaymentMethod().equals("debit") && !customer.getPaymentMethod().equals("credit")) {
-            System.out.println("Méthode de paiement non reconnue.");
+        if (isValidBankCard(card)) {
+            System.out.println("Carte bancaire détectée.");
+        } else {
+            System.out.println("Erreur : Carte non reconnue. Paiement annulé.");
             return false;
         }
-        System.out.println("Carte bancaire détectée.");
 
         // Demande du code PIN
         System.out.println("Entrez votre code PIN : ");
         String enteredPin = scanner.nextLine();
-        System.out.println("Code PIN vérifié.");
 
         // Vérification du pin 
-        if (!verifyPin(customer, enteredPin)) {
+        if (!verifyPin(card, enteredPin)) {
             System.out.println("Erreur : Code PIN incorrect. Paiement annulé.");
             return false;
         }
         System.out.println("Code PIN correct.");
 
-        // Demande d'autorisation de paiement
-        System.out.println("Demande d'autorisation de paiement en cours...");
-        transaction.setPaymentMethod(customer.getPaymentMethod());
-        transaction.setStatus("Pending");
-        
-        boolean authorized = transaction.authorizePayment();
-        if (!authorized) {
+        // Ouverture d'une connexion sécurisée avec TAS
+        tas.openSecureConnection();
+
+        // Demande d'autorisation bancaire via TAS
+        System.out.println("Demande d'autorisation bancaire en cours...");
+        boolean authorized = tas.authorizeTransaction(transaction, account);
+        if (authorized) {
+            account.debit(transaction.getAmount());
+        } else {
             System.out.println("Paiement refusé par la banque.");
             return false;
         }
-        System.out.println("Paiement autorisé par la banque.");
+        
+        // Fermeture de la connexion sécurisée avec TAS
+        tas.closeSecureConnection();
 
+
+        // Impression du reçu
         System.out.print("Souhaitez-vous un reçu ? (Oui/Non) : ");
         String receiptChoice = scanner.nextLine().toLowerCase();
         boolean printReceipt = receiptChoice.equals("oui");
 
-        // Étape 6 : Finalisation
+        // Finalisation
         if (printReceipt) {
             System.out.println("Impression du reçu en cours...");
         }
@@ -55,7 +68,11 @@ public class POS {
         return true;
     }   
 
-    private boolean verifyPin(Customer customer, String enteredPin) {
-        return enteredPin.equals(customer.getPinCode()); // Le code PIN est stocké dans Customer
+    private boolean isValidBankCard(BankCard card) {
+        return card.getCardType().equalsIgnoreCase("Credit") || card.getCardType().equalsIgnoreCase("Debit");
+    }
+
+    private boolean verifyPin(BankCard card, String enteredPin) {
+        return enteredPin.equals(card.getPinCode()); 
     }
 }
