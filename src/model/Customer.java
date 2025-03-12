@@ -1,33 +1,42 @@
 package model;
+import java.util.UUID;
 
 public class Customer {
     private String firstName;
     private String lastName;
-    private int id;
-    private String plan; // "normal", "prime", "platinium"
+    private UUID id;
+    private String plan; // normal, prime, platinium
+    private double x_axis;
+    private double y_axis;
+    private String payment_method;
 
-    public Customer(String firstName, String lastName, int id, String plan) {
+    public Customer(String firstName, String lastName, int id, String plan, double x_axis, double y_axis, String payment_method) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.id = id;
+        this.id = generateId();
         this.plan = plan;
+        this.x_axis = x_axis;
+        this.y_axis = y_axis;
+        this.payment_method = payment_method;
     }
 
-    public String getFirstName() {
-        return firstName;
+    private UUID generateId() {
+        return UUID.randomUUID();
     }
 
-    public String getLastName() {
-        return lastName;
-    }
+    // Getters and Setters
+    public String getFirstName() { return firstName; }
 
-    public int getId() {
-        return id;
-    }
+    public String getLastName() { return lastName; }
 
-    public String getPlan() {
-        return plan;
-    }
+    public UUID getId() { return id; }
+
+    public String getPlan() { return plan; }
+
+    public double getX_axis() { return x_axis; }
+    public double getY_axis() { return y_axis; }
+
+    public String getPayment_method() { return payment_method; }
 
 }
 
