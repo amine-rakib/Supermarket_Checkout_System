@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Scanner;
 
 class CashRegisterTest {
     private CashRegister cashRegister;
@@ -30,7 +31,8 @@ class CashRegisterTest {
         // Initialisation du POS et de la caisse
         tas = new TAS();
         pos = new POS(tas);
-        cashRegister = new CashRegister(pos);
+        
+        cashRegister = createRegisterWithInput("oui\nnon\n");
 
         // Création des comptes bancaires
         regularAccount = new BankAccount("123456", 1000.0, 0.0);
@@ -51,6 +53,20 @@ class CashRegisterTest {
         pomme = new FruitItem("F001", "Pomme Bio", 2.0, 2, 0.5, true);
         yaourt = new DairyItem("D001", "Yaourt", 1.5, 3, 0.4, 1);
         steak = new MeatItem("M001", "Steak", 5.0, 2, 0.3, false);
+    }
+
+    private CashRegister createRegisterWithInput(String input) {
+        Scanner scanner = new Scanner(new ByteArrayInputStream(input.getBytes()));
+        return new CashRegister(pos, scanner);
+    }
+
+    @Test
+    void testRecordItem() {
+        // Sans livraison ni reçu
+        cashRegister = createRegisterWithInput("non\nnon\n");
+        cashRegister.recordItem(pomme);
+        double total = cashRegister.computeTotal(regularCustomer);
+        assertEquals(3.4, total, 0.001); // 2.0 * 2 * 0.85 (remise bio)
     }
 
     @Test

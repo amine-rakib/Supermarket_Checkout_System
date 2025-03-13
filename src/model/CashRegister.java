@@ -11,12 +11,18 @@ public class CashRegister {
     private DeliveryCalculator deliveryCalculator;
     private Scanner scanner;
 
+    // Constructeur existant
     public CashRegister(POS pos) {
+        this(pos, new Scanner(System.in));
+    }
+
+    // Nouveau constructeur pour les tests
+    public CashRegister(POS pos, Scanner scanner) {
         this.items = new ArrayList<Item>();
         this.pos = pos;
         this.priceCalculator = new PriceCalculatorVisitor();
         this.deliveryCalculator = new StandardDeliveryCalculator();
-        this.scanner = new Scanner(System.in);
+        this.scanner = scanner;
     }
 
 
