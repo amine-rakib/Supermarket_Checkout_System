@@ -25,16 +25,4 @@ public class PaymentTransaction {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }    
 
-    public boolean authorizePayment() {
-        // Simulate : 95% chance of success 
-        // Il aurait fallut dans un système complet, vérifier la validité de la carte, le solde, etc.
-        double random = Math.random();
-        if (random < 0.95) {
-            status = "success";
-            return true;
-        } else {
-            status = "failed";
-            return false;
-        }
-    }
 }

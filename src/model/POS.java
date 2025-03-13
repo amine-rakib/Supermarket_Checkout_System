@@ -7,9 +7,14 @@ public class POS {
     private TAS tas;
 
     public POS(TAS tas) {
-        this.scanner = new Scanner(System.in);
-        this.tas = tas;
+        this(tas, new Scanner(System.in));
     }
+
+    public POS(TAS tas, Scanner scanner) {
+        this.tas = tas;
+        this.scanner = scanner;
+    }
+
     public boolean processPayment(PaymentTransaction transaction, Customer customer) {
         BankCard card = customer.getBankCard();
         BankAccount account = card.getLinkedAccount();
@@ -28,7 +33,7 @@ public class POS {
 
         // Vérification du pin 
         if (!verifyPin(card, enteredPin)) {
-            System.out.println("Erreur : Code PIN incorrect. Paiement annulé.");
+            System.out.println("Erreur : Code PIN incorrect. Paiement annulé :" + enteredPin);
             return false;
         }
         System.out.println("Code PIN correct.");

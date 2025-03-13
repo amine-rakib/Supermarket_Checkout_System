@@ -31,6 +31,10 @@ public class BankAccount {
     public void setLinkedCard(BankCard linkedCard) {
         this.linkedCard = linkedCard;
     }
+
+    public BankCard getLinkedCard() {
+        return linkedCard;
+    }
     
     public boolean canAuthorizeTransaction(double amount) {
         return amount <= getBalance(linkedCard);

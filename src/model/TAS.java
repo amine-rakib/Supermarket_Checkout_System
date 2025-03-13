@@ -17,6 +17,7 @@ public class TAS {
     public boolean authorizeTransaction(PaymentTransaction transaction, BankAccount account) {
         if (!secureConnectionOpen) {
             System.out.println("Erreur : Pas de connexion sécurisée avec la banque.");
+            transaction.setStatus("Declined");
             return false;
         }
 
