@@ -1,0 +1,82 @@
+@startuml "Transaction d'achat"
+
+' Style du diagramme
+skinparam sequenceMessageAlign center
+skinparam backgroundColor white
+skinparam sequence {
+    ArrowColor black
+    LifeLineBorderColor black
+    ParticipantBorderColor black
+}
+
+actor "Caissier" as Cashier
+participant "CashRegister" as CR
+participant "PriceCalculatorVisitor" as PCV
+participant "StandardDeliveryCalculator" as DC
+participant "Customer" as C
+participant "BankCard" as BC
+participant "POS" as POS
+participant "TAS" as TAS
+participant "BankAccount" as BA
+
+' Début de la transaction
+Cashier -> CR: recordItem(item)
+activate CR
+
+CR -> PCV: item.accept(visitor)
+activate PCV
+PCV --> CR: prix avec remise article
+deactivate PCV
+
+CR -> C: computeTotal(customer)
+activate C
+
+' Calcul de la livraison
+CR -> DC: calculateDeliveryCost(weight, distance, amount)
+activate DC
+DC --> CR: coût de livraison
+deactivate DC
+
+C -> C: applyDiscount(amount)
+C --> CR: montant total avec remises
+deactivate C
+
+' Processus de paiement
+CR -> POS: processPayment(transaction)
+activate POS
+
+POS -> TAS: openSecureConnection()
+activate TAS
+TAS --> POS: connexion établie
+
+POS -> BC: getAccount()
+activate BC
+BC --> POS: compte bancaire
+deactivate BC
+
+POS -> BA: canAuthorizeTransaction(amount)
+activate BA
+BA --> POS: autorisation
+deactivate BA
+
+POS -> TAS: authorizeTransaction(transaction)
+TAS --> POS: transaction autorisée
+
+POS -> BA: debit(amount)
+activate BA
+BA --> POS: débit effectué
+deactivate BA
+
+TAS -> TAS: closeSecureConnection()
+deactivate TAS
+
+POS --> CR: paiement réussi
+deactivate POS
+
+CR -> CR: printReceipt()
+CR -> CR: completeSale()
+
+CR --> Cashier: transaction terminée
+deactivate CR
+
+@enduml

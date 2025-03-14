@@ -1,0 +1,183 @@
+@startuml Supermarket_Checkout_System
+
+' Style du diagramme
+skinparam classAttributeIconSize 0
+skinparam backgroundColor white
+skinparam class {
+    BackgroundColor white
+    ArrowColor black
+    BorderColor black
+}
+
+' Interfaces
+interface ItemVisitor {
+    +visitFruit(FruitItem): double
+    +visitDairy(DairyItem): double
+    +visitMeat(MeatItem): double
+}
+
+interface DeliveryCalculator {
+    +calculateDeliveryCost(weight: double, distance: double, amount: double): double
+}
+
+interface ICustomerPlan {
+    +applyDiscount(amount: double): double
+    +getPlanName(): String
+}
+
+' Classes abstraites
+abstract class Item {
+    -id: String
+    -label: String
+    -u_price: double
+    -quantity: int
+    -weight: double
+    +accept(ItemVisitor): double
+    +getId(): String
+    +getLabel(): String
+    +getUPrice(): double
+    +getQuantity(): int
+    +getWeight(): double
+}
+
+' Items concrets
+class FruitItem {
+    -organic: boolean
+    +isOrganic(): boolean
+}
+
+class DairyItem {
+    -daysUntilExpiration: int
+    +getDaysUntilExpiration(): int
+}
+
+class MeatItem {
+    -fresh: boolean
+    +isFresh(): boolean
+}
+
+' Stratégies de remise
+class NormalDiscountStrategy {
+    +applyDiscount(amount: double): double
+}
+
+class PrimeDiscountStrategy {
+    -DISCOUNT_RATE: double
+    +applyDiscount(amount: double): double
+}
+
+class PlatinumDiscountStrategy {
+    -DISCOUNT_RATE: double
+    +applyDiscount(amount: double): double
+}
+
+' Calcul des prix
+class PriceCalculatorVisitor {
+    -ORGANIC_DISCOUNT: double
+    -EXPIRING_DISCOUNT: double
+    -FROZEN_DISCOUNT: double
+    +visitFruit(FruitItem): double
+    +visitDairy(DairyItem): double
+    +visitMeat(MeatItem): double
+}
+
+' Système de livraison
+class StandardDeliveryCalculator {
+    -BASE_COST: double
+    -WEIGHT_THRESHOLD: double
+    -DISTANCE_THRESHOLD: double
+    -ADDITIONAL_RATE: double
+    +calculateDeliveryCost(): double
+}
+
+' Classes principales
+class CashRegister {
+    -items: List<Item>
+    -pos: POS
+    -priceCalculator: ItemVisitor
+    -deliveryCalculator: DeliveryCalculator
+    -scanner: Scanner
+    +recordItem(Item)
+    +computeTotal(Customer): double
+    +processPayment(Customer, double)
+    +printReceipt(Customer, double, PaymentTransaction)
+    +completeSale()
+}
+
+class Customer {
+    -firstName: String
+    -lastName: String
+    -id: UUID
+    -discountStrategy: ICustomerPlan
+    -x_axis: double
+    -y_axis: double
+    -bankCard: BankCard
+    +applyDiscount(amount: double): double
+}
+
+class BankAccount {
+    -accountNumber: String
+    -balance: double
+    -creditLimit: double
+    +debit(amount: double): boolean
+    +credit(amount: double): void
+    +getBalance(card: BankCard): double
+    +canAuthorizeTransaction(amount: double): boolean
+}
+
+class BankCard {
+    -cardNumber: String
+    -cvv: String
+    -cardType: String
+    -account: BankAccount
+}
+
+class POS {
+    -tas: TAS
+    +processPayment(transaction: PaymentTransaction): boolean
+}
+
+class TAS {
+    -secureConnectionOpen: boolean
+    +openSecureConnection(): boolean
+    +authorizeTransaction(transaction: PaymentTransaction, account: BankAccount): boolean
+    +closeSecureConnection(): void
+}
+
+class PaymentTransaction {
+    -amount: double
+    -status: String
+    -id: UUID
+    +getAmount(): double
+    +getStatus(): String
+    +setStatus(status: String)
+}
+
+' Relations
+Item <|-- FruitItem
+Item <|-- DairyItem
+Item <|-- MeatItem
+
+ICustomerPlan <|.. NormalDiscountStrategy
+ICustomerPlan <|.. PrimeDiscountStrategy
+ICustomerPlan <|.. PlatinumDiscountStrategy
+
+ItemVisitor <|.. PriceCalculatorVisitor
+DeliveryCalculator <|.. StandardDeliveryCalculator
+
+CashRegister o-- "0..*" Item : contains
+CashRegister --> PriceCalculatorVisitor : uses
+CashRegister --> StandardDeliveryCalculator : uses
+CashRegister --> POS : uses
+
+Customer --> BankCard : has
+Customer --> ICustomerPlan : uses
+
+BankCard --> BankAccount : accesses
+POS --> TAS : uses
+POS --> PaymentTransaction : creates
+
+CashRegister "1" --> "*" Customer : serves >
+CashRegister ..> Customer : "computeTotal(Customer)\nprocessPayment(Customer, double)" 
+
+@enduml
